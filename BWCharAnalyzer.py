@@ -3,11 +3,13 @@ from PIL import ImageDraw
 from PIL import ImageFont
 import collections
 import sys
+import json
+from pprint import pprint
+from math import sqrt
 
 resultDict = {}
 scale = 10
-f = ImageFont.truetype(font=sys.argv[1], size=40*scale)
-
+f = ImageFont.truetype(font=sys.argv[1], size=40*scale) 
 
 def makeImg(char):
 	img = Image.new('1', (24*scale, 49*scale), color=1)
@@ -37,9 +39,19 @@ stdLetters = []
 for key in sortedVals:
 	stdLetters.append(resultDict[key])
 
-sys.stdout = open("CharacterBrightnessSequence", "w")
+f = open("CharacterBrightnessSequence", "w")
 
 for letter in stdLetters:
-	sys.stdout.write(letter)
-	sys.stdout.write(chr(0x001F))
-#print(strOutput)
+	f.write(letter)
+	f.write(chr(0x001F))
+
+# print(resultDict)
+
+adjustedMap = {}
+for i in range(0, 256):
+    closestKey = min(resultDict.keys(),
+            key=lambda x: abs(((float(x) ** .3) * 255) - i))
+
+    adjustedMap[i] = resultDict[closestKey]
+
+json.dump(adjustedMap, open('./charBrightness.json', 'w'))
